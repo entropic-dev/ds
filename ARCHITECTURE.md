@@ -194,6 +194,12 @@ This runs any required run-scripts. By default, it will prompt if a new package 
 
 Implementation: This should be a rewrite of https://github.com/npm/npm-lifecycle
 
+### entropic client
+
+This is an http client especially designed to communicate with the entropic registry. For now, this can be any client that supports both sync and async http requests. Long-term, it would be good to have built-in caching support (into [cacache](#cacache-rs)) that's fully http cache spec-compliant.
+
+Implementation: The initial version of this can just be a straightforward wrapper around something like [`reqwest`](https://crates.io/crates/reqwest). It'll still need to manually write to cacache, though, for completed requests. It's completely ok for this client to load the entire request body into memory at one time, especially because of the state of async streams in Rust right now. It's also ok to limit http caching to the 5 minutes currently configured -- but it'll need to be able to do 304 requests, and that needs to be written manually. Long-term, a more complete port of [`make-fetch-happen`](https://npm.im/make-fetch-happen) (for retries, caching, keepalive, etc support), and [`npm-registry-fetch`](https://npm.im/npm-registry-fetch) (higher-level requests, standardized config consumption, etc) is desirable, but that's a much bigger effort than we need to undertake right now.
+
 ### cacache-rs
 
 This is the Rust implementation of cacache, a content-addressable cache where all package metadata and individual files for Entropic are stored for fast, easy access. It deduplicates globally by content address, reducing overall storage use.
