@@ -18,5 +18,13 @@
   "homepage": "https://github.com/entropic-dev/ds#readme",
   "devDependencies": {
     "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-plugin-transform-typescript": "^7.0.0-alpha.19",
+    "esm": "^3.2.25",
+    "figgy-pudding": "^3.5.1",
+    "yargs": "^13.2.4"
   }
 }
