@@ -1,5 +1,7 @@
 use dstopic;
+use std::fs;
 
 fn main() {
-    println!("Hello, world!");
+    dstopic::parse_args::parse_args().get_matches();
+    println!("{}", fs::read_to_string("./Cargo.toml").unwrap().len());
 }
