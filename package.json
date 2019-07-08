@@ -17,7 +17,11 @@
   },
   "homepage": "https://github.com/entropic-dev/ds#readme",
   "devDependencies": {
-    "typescript": "^3.5.2"
+    "@types/node": "^12.6.0",
+    "@types/yargs": "^13.0.0",
+    "lint-staged": "^9.1.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.6.0-dev.20190704"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
