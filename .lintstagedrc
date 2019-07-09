@@ -1,15 +1,5 @@
 {
-    "*.json": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.(tsx|ts)": [
-        "eslint --fix",
-        "git add"
-    ],
-    "*.(jsx|js)": [
-        "eslint --fix",
-        "git add"
-    ]
-  }
-  
+  "*.json": ["prettier --write", "git add"],
+  "*.md": ["prettier --write", "git add"],
+  "*.(tsx|ts|jsx|js)": ["eslint --fix", "git add"]
+}
