@@ -6,6 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/entropic-dev/ds.git"
@@ -17,7 +22,17 @@
   },
   "homepage": "https://github.com/entropic-dev/ds#readme",
   "devDependencies": {
-    "typescript": "^3.5.2"
+    "@types/node": "^12.6.0",
+    "@types/yargs": "^13.0.0",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^3.0.0",
+    "lint-staged": "^9.1.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.6.0-dev.20190704"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
