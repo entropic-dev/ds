@@ -4,7 +4,7 @@
   "description": "javascript runtime",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava"
   },
   "husky": {
     "hooks": {
@@ -26,12 +26,14 @@
     "@types/yargs": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^1.11.0",
     "@typescript-eslint/parser": "^1.11.0",
+    "ava": "^2.2.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.0",
     "lint-staged": "^9.1.0",
     "prettier": "^1.18.2",
+    "ts-node": "^8.3.0",
     "typescript": "^3.6.0-dev.20190704"
   },
   "dependencies": {
@@ -41,5 +43,15 @@
     "esm": "^3.2.25",
     "figgy-pudding": "^3.5.1",
     "yargs": "^13.2.4"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "esm"
+    ]
   }
 }
