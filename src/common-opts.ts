@@ -1,39 +1,47 @@
-import os from "os";
-import path from "path";
+import os from 'os';
+import path from 'path';
 
-module.exports = {
+const commonOpts = {
   cache: {
-    describe: "Path to the global tink cache",
+    describe: 'Path to the global tink cache'
   },
   json: {
     default: false,
-    describe: "Output in JSON format.",
-    type: "boolean",
+    describe: 'Output in JSON format.',
+    type: 'boolean'
   },
   loglevel: {
-    default: "notice",
-    alias: ["log", "l"],
-    describe: "Logger output level.",
-    choices: ["silent", "error", "warn", "http", "verbose", "info", "notice", "silly"],
+    default: 'notice',
+    alias: ['log', 'l'],
+    describe: 'Logger output level.',
+    choices: [
+      'silent',
+      'error',
+      'warn',
+      'http',
+      'verbose',
+      'info',
+      'notice',
+      'silly'
+    ]
   },
   registry: {
-    alias: "r",
-    default: "https://registry.npmjs.org",
-    describe: "Registry to ping",
+    alias: 'r',
+    default: 'https://registry.npmjs.org',
+    describe: 'Registry to ping'
   },
   userconfig: {
-    default: path.join(os.homedir(), ".npmrc"),
-    describe: "Path to user config file.",
+    default: path.join(os.homedir(), '.npmrc'),
+    describe: 'Path to user config file.'
   },
   force: {
-    type: "boolean",
-    describe: "Force an action (use with care). This should be defined per-command.",
+    type: 'boolean',
+    describe:
+      'Force an action (use with care). This should be defined per-command.'
   },
   log: {},
   prefix: {},
-  then: {},
+  then: {}
 };
 
-Object.keys(module.exports).forEach(k => {
-  module.exports[k].hidden = true;
-});
+export default commonOpts;

@@ -1,44 +1,47 @@
-import mkCmd from "../utils/cmd-handler";
-import { Argv } from "yargs";
+import mkCmd from '../utils/cmd-handler';
+import { Argv } from 'yargs';
+import commonOpts from '../common-opts';
+import shell from '../commands/shell.js';
 
 const Shell = (module.exports = {
-  command: "shell",
-  aliases: ["sh"],
-  describe: "Launch a ds shell or execute a script",
+  command: 'shell',
+  aliases: ['sh'],
+  describe: 'Launch a ds shell or execute a script',
   builder(yargs: Argv) {
     return yargs
       .help()
-      .alias("help", "h")
+      .alias('help', 'h')
       .options(Shell.options);
   },
-  options: Object.assign({}, require("../common-opts"), {
+  options: Object.assign({}, commonOpts, {
     _: { default: [] },
     nodeArg: {
-      alias: ["n", "node-arg"],
-      describe: "Arguments to pass down directly to node",
-      type: "array",
+      alias: ['n', 'node-arg'],
+      describe: 'Arguments to pass down directly to node',
+      type: 'array'
     },
     prefix: {
-      alias: "C",
-      describe: "Directory to execute package management operations in.",
-      type: "string",
+      alias: 'C',
+      describe: 'Directory to execute package management operations in.',
+      type: 'string'
     },
     also: {
-      hidden: true,
+      hidden: true
     },
     dev: {
-      hidden: true,
+      hidden: true
     },
     development: {
-      hidden: true,
+      hidden: true
     },
     only: {
-      hidden: true,
+      hidden: true
     },
     production: {
-      type: "boolean",
-      describe: "Limit downloads to production dependencies, skipping devDependencies.",
-    },
+      type: 'boolean',
+      describe:
+        'Limit downloads to production dependencies, skipping devDependencies.'
+    }
   }),
-  handler: mkCmd((...args) => require("../commands/shell.js")(...args)),
+  handler: mkCmd((...args) => shell(...args))
 });
