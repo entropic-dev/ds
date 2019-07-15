@@ -1,6 +1,6 @@
-import figgyPudding, { ProxyFiggyPudding } from 'figgy-pudding';
-import { renderApp } from '../components/app';
-import { Argv } from 'yargs';
+import figgyPudding, { ProxyFiggyPudding } from "figgy-pudding";
+import { renderApp } from "../components/app";
+import { Argv } from "yargs";
 
 const ShellOpts = figgyPudding({
   cache: {},
