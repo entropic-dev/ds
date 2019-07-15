@@ -16,29 +16,30 @@ const Shell = (module.exports = {
     nodeArg: {
       alias: ["n", "node-arg"],
       describe: "Arguments to pass down directly to node",
-      type: "array",
+      type: "array"
     },
     prefix: {
       alias: "C",
       describe: "Directory to execute package management operations in.",
-      type: "string",
+      type: "string"
     },
     also: {
-      hidden: true,
+      hidden: true
     },
     dev: {
-      hidden: true,
+      hidden: true
     },
     development: {
-      hidden: true,
+      hidden: true
     },
     only: {
-      hidden: true,
+      hidden: true
     },
     production: {
       type: "boolean",
-      describe: "Limit downloads to production dependencies, skipping devDependencies.",
-    },
+      describe:
+        "Limit downloads to production dependencies, skipping devDependencies."
+    }
   }),
-  handler: mkCmd((...args) => require("../commands/shell.js")(...args)),
+  handler: mkCmd((...args) => require("../commands/shell.js").default(...args))
 });
