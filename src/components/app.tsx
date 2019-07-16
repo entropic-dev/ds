@@ -1,8 +1,8 @@
-import React, { PureComponent } from "react";
-import { render, Color } from "ink";
+import React, { PureComponent } from 'react';
+import { render, Color } from 'ink';
 
-import { ProxyFiggyPudding } from "figgy-pudding";
-import { Argv } from "yargs";
+import { ProxyFiggyPudding } from 'figgy-pudding';
+import { Argv } from 'yargs';
 
 export class App extends PureComponent {
   render() {

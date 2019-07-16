@@ -1,4 +1,4 @@
 export function overrideNode() {
-  require("./extensions").overrideNode();
+  require('./extensions').overrideNode();
 }
 overrideNode();
