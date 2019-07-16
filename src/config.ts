@@ -1,5 +1,5 @@
-import figgyPudding from "figgy-pudding";
-import { Argv } from "yargs";
+import figgyPudding from 'figgy-pudding';
+import { Argv } from 'yargs';
 
 const config = figgyPudding({});
 

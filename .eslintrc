@@ -12,7 +12,8 @@
     },
     "rules": {
         "@typescript-eslint/explicit-function-return-type": 0,
-        "@typescript-eslint/explicit-member-accessibility": 0
+        "@typescript-eslint/explicit-member-accessibility": 0,
+        "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": false }]
     },
     "settings": {
         "react": {
