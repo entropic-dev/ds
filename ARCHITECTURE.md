@@ -146,7 +146,7 @@ Implementation: A sketch was written up: https://github.com/npm/tink#--tink-chec
 
 Runs the test suite, including `ds check`.
 
-#### <a name="ds-unwrap"> `$ ds unwrap [pkg...]`
+#### <a name="ds-unwrap">`$ ds unwrap [pkg...]`</a>
 
 Extracts a package into `node_modules/`, or all dependencies (and their dependencies) if an argument is passed. Only direct dependencies can be passed as arguments.
 
