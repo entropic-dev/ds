@@ -118,35 +118,35 @@ Pre-fetches metadata for required packages.
 
 Implementation: This needs to invoke the installer, once it exists.
 
-#### `$ ds add [pkg...]`
+#### <a name="ds-add"> `$ ds add [pkg...]`
 
 Adds new dependencies. Edits Ds.toml. Does interactive search + add if no arguments passed to it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### `$ ds rm [pkg...]`
+#### <a name="ds-rm"> `$ ds rm [pkg...]`
 
 Removes existing dependencies. Edits Ds.toml. Goes interactive if no arguments passed ot it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### `$ ds up [pkg...]`
+#### <a name="ds-up"> `$ ds up [pkg...]`
 
 Updates existing dependencies. Edits Ds.toml. Goes interactive if no arguments passed ot it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### `$ ds check`
+#### <a name="ds-check"> `$ ds check`
 
 Runs a bunch of checks, except the test suite.
 
 Implementation: A sketch was written up: https://github.com/npm/tink#--tink-check
 
-#### `$ ds test`
+#### <a name="ds-test"> `$ ds test`
 
 Runs the test suite, including `ds check`.
 
-#### `$ ds unwrap [pkg...]`
+#### <a name="ds-unwrap"> `$ ds unwrap [pkg...]`
 
 Extracts a package into `node_modules/`, or all dependencies (and their dependencies) if an argument is passed. Only direct dependencies can be passed as arguments.
 
