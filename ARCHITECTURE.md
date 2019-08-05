@@ -106,47 +106,47 @@ These are the actual commands users run on the node-ish side.
 
 Implementation: I'm thinking the commands should be written on top of [yargs](https://npm.im/yargs), although yargs has the disadvantage that it can be a bit heavy to load sometimes, so some optimization work might be needed. Tink already has a useful architecture for how to structure these, but I'm open to alternative ideas if anyone wants to sketch them out.
 
-#### <a name="ds-sh"></a> `$ ds sh [script.js]`
+#### `$ ds sh [script.js]`
 
 This is the replacement for `$ node`. It starts a node process with all the various [node patches](#node-patches) applied.
 
 Implementation: https://github.com/npm/tink/blob/latest/lib/commands/shell.js
 
-#### <a name="ds-prep"></a> `$ ds prep`
+#### `$ ds prep`
 
 Pre-fetches metadata for required packages.
 
 Implementation: This needs to invoke the installer, once it exists.
 
-#### <a name="ds-add"> `$ ds add [pkg...]`
+#### `$ ds add [pkg...]`
 
 Adds new dependencies. Edits Ds.toml. Does interactive search + add if no arguments passed to it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### <a name="ds-rm"> `$ ds rm [pkg...]`
+#### `$ ds rm [pkg...]`
 
 Removes existing dependencies. Edits Ds.toml. Goes interactive if no arguments passed ot it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### <a name="ds-up"> `$ ds up [pkg...]`
+#### `$ ds up [pkg...]`
 
 Updates existing dependencies. Edits Ds.toml. Goes interactive if no arguments passed ot it.
 
 Implementation: This needs to invoke the installer, once it exists. The interactive and UI behavior should be implemented using [ink](https://npm.im/ink).
 
-#### <a name="ds-check"> `$ ds check`
+#### `$ ds check`
 
 Runs a bunch of checks, except the test suite.
 
 Implementation: A sketch was written up: https://github.com/npm/tink#--tink-check
 
-#### <a name="ds-test"> `$ ds test`
+#### `$ ds test`
 
 Runs the test suite, including `ds check`.
 
-#### <a name="ds-unwrap">`$ ds unwrap [pkg...]`</a>
+#### `$ ds unwrap [pkg...]`</a>
 
 Extracts a package into `node_modules/`, or all dependencies (and their dependencies) if an argument is passed. Only direct dependencies can be passed as arguments.
 
