@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "javascript runtime",
   "main": "index.js",
+  "files": [
+    "bin",
+    "lib"
+  ],
   "scripts": {
     "clean": "rimraf lib",
     "start": "tsc --watch",
