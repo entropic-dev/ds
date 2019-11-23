@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use lazy_static::lazy_static;
 use regex::Regex;
 use semver::{Version, VersionReq};
@@ -125,73 +125,4 @@ fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn from_string_tag() {
-        let res = PackageArg::from_string("example.com/hey/there@next").unwrap();
-        assert_eq!(
-            res,
-            PackageArg::Tag {
-                name: "hey/there".into(),
-                tag: "next".into(),
-                host: Url::parse("https://example.com")
-                    .unwrap()
-                    .host()
-                    .map(|x| x.to_owned()),
-            }
-        )
-    }
-
-    #[test]
-    fn from_string_version() {
-        let res = PackageArg::from_string("example.com/hey/there@1.2.3").unwrap();
-        assert_eq!(
-            res,
-            PackageArg::Version {
-                name: "hey/there".into(),
-                version: Version::parse("1.2.3").unwrap(),
-                host: Url::parse("https://example.com")
-                    .unwrap()
-                    .host()
-                    .map(|x| x.to_owned()),
-            }
-        )
-    }
-
-    #[test]
-    fn from_string_range() {
-        let res = PackageArg::from_string("example.com/hey/there@^1.2.3").unwrap();
-        assert_eq!(
-            res,
-            PackageArg::Range {
-                name: "hey/there".into(),
-                range: VersionReq::parse("^1.2.3").unwrap(),
-                host: Url::parse("https://example.com")
-                    .unwrap()
-                    .host()
-                    .map(|x| x.to_owned()),
-            }
-        )
-    }
-
-    #[test]
-    fn from_string_alias() {
-        let res = PackageArg::from_string("hi@pkg:example.com/hey/there@^1.2.3").unwrap();
-        assert_eq!(
-            res,
-            PackageArg::Alias {
-                name: "hi".into(),
-                package: Box::new(PackageArg::Range {
-                    name: "hey/there".into(),
-                    range: VersionReq::parse("^1.2.3").unwrap(),
-                    host: Url::parse("https://example.com")
-                        .unwrap()
-                        .host()
-                        .map(|x| x.to_owned()),
-                })
-            }
-        )
-    }
-}
+mod tests {}
