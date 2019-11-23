@@ -1,8 +1,15 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
 use semver::{Version, VersionReq};
+use thiserror::Error;
 use url::{Host, Url};
+
+#[derive(Debug, Error)]
+pub enum PackageArgError {
+    #[error("Failed to parse package arg.")]
+    ParseError,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PackageArg {
@@ -82,7 +89,10 @@ fn from_alias(name: String, spec: String) -> Result<PackageArg> {
 }
 
 fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
-    let caps = RE.captures(&name).unwrap_or_else(|| panic!("ENOPARSE"));
+    let caps = RE
+        .captures(&name)
+        .ok_or_else(|| PackageArgError::ParseError)
+        .with_context(|| format!("Invalid registry arg string: {}", name))?;
     let host = caps.name("host").and_then(|host| {
         let mut string = String::from("https://");
         string.push_str(host.as_str());
@@ -93,7 +103,8 @@ fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
     let clean_name = caps
         .name("name")
         .map(|x| x.as_str().to_owned())
-        .unwrap_or_else(|| panic!("ENOPARSE"));
+        .ok_or_else(|| PackageArgError::ParseError)
+        .with_context(|| format!("No package name found in registry arg: {}", name))?;
     if spec.is_none() {
         spec = Some("latest".into());
     }
