@@ -49,6 +49,44 @@ fn from_string_tag_no_host() {
 }
 
 #[test]
+fn from_string_tag_no_long_name() {
+    let res = PackageArg::from_string("example.com/hey/you/there@next");
+    assert_eq!(res.is_err(), true)
+}
+
+#[test]
+fn from_string_tag_legacy() {
+    let res = PackageArg::from_string("example.com/legacy/there@next").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "legacy/there".into(),
+            tag: "next".into(),
+            host: Url::parse("https://example.com")
+                .unwrap()
+                .host()
+                .map(|x| x.to_owned()),
+        }
+    )
+}
+
+#[test]
+fn from_string_tag_legacy_scoped() {
+    let res = PackageArg::from_string("example.com/legacy/hey/there@next").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "legacy/hey/there".into(),
+            tag: "next".into(),
+            host: Url::parse("https://example.com")
+                .unwrap()
+                .host()
+                .map(|x| x.to_owned()),
+        }
+    )
+}
+
+#[test]
 fn from_string_version() {
     let res = PackageArg::from_string("example.com/hey/there@1.2.3").unwrap();
     assert_eq!(
