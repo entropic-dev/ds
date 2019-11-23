@@ -35,6 +35,8 @@ pub enum PackageArg {
 }
 
 lazy_static! {
+    static ref SPLITTER: Regex =
+        Regex::new(r"(?i)^(?P<name>(?:[^@]+/legacy/@[^@]+|[^@]+))(?:@(?P<spec>.*))?$").unwrap();
     static ref PKG: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
     static ref LEGACY: Regex =
         Regex::new(r"(?i)^(?P<host>[^/]+/)?(?P<name>legacy/[^/]+(?:/[^/]+)?)$").unwrap();
@@ -43,19 +45,17 @@ lazy_static! {
 impl PackageArg {
     pub fn from_string<S: AsRef<str>>(s: S) -> Result<PackageArg> {
         let s: String = s.as_ref().into();
-        let split = s.splitn(2, "@").collect::<Vec<&str>>();
-        let name: String;
-        let spec: Option<String>;
-        if split.len() == 2 {
-            name = split[0].into();
-            spec = Some(split[1].into());
-        } else if split.len() == 1 {
-            name = split[0].into();
-            spec = None
-        } else {
-            unreachable!()
-        }
-        Self::resolve(name, spec)
+        let matches = SPLITTER
+            .captures(&s)
+            .ok_or_else(|| PackageArgError::ParseError)
+            .with_context(|| format!("Invalid package arg: {}", s))?;
+        Self::resolve(
+            dbg!(matches
+                .name("name")
+                .map(|name| name.as_str().to_owned())
+                .unwrap()),
+            dbg!(matches.name("spec").map(|spec| spec.as_str().to_owned())),
+        )
     }
 
     pub fn resolve(name: String, spec: Option<String>) -> Result<PackageArg> {
