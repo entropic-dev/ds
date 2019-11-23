@@ -35,7 +35,9 @@ pub enum PackageArg {
 }
 
 lazy_static! {
-    static ref RE: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
+    static ref PKG: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
+    static ref LEGACY: Regex =
+        Regex::new(r"(?i)^(?P<host>[^/]+/)?(?P<name>legacy/[^/]+(?:/[^/]+)?)$").unwrap();
 }
 
 impl PackageArg {
@@ -89,8 +91,9 @@ fn from_alias(name: String, spec: String) -> Result<PackageArg> {
 }
 
 fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
-    let caps = RE
+    let caps = PKG
         .captures(&name)
+        .or_else(|| LEGACY.captures(&name))
         .ok_or_else(|| PackageArgError::ParseError)
         .with_context(|| format!("Invalid registry arg string: {}", name))?;
     let host = caps.name("host").and_then(|host| {
