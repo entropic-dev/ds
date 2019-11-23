@@ -10,7 +10,6 @@ edition = "2018"
 clap = "2.33.0"
 cacache = "1.0.1"
 ssri = "3.0.0"
-reqwest = "0.9.18"
 log = "0.4.6"
 
 [workspace]
