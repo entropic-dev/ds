@@ -72,12 +72,28 @@ fn from_string_tag_legacy() {
 
 #[test]
 fn from_string_tag_legacy_scoped() {
-    let res = PackageArg::from_string("example.com/legacy/hey/there@next").unwrap();
+    let res = PackageArg::from_string("example.com/legacy/@hey/there@next").unwrap();
     assert_eq!(
         res,
         PackageArg::Tag {
-            name: "legacy/hey/there".into(),
+            name: "legacy/@hey/there".into(),
             tag: "next".into(),
+            host: Url::parse("https://example.com")
+                .unwrap()
+                .host()
+                .map(|x| x.to_owned()),
+        }
+    )
+}
+
+#[test]
+fn from_string_implicit_tag_legacy_scoped() {
+    let res = PackageArg::from_string("example.com/legacy/@hey/there").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "legacy/@hey/there".into(),
+            tag: "latest".into(),
             host: Url::parse("https://example.com")
                 .unwrap()
                 .host()
