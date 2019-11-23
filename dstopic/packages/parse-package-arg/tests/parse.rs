@@ -20,6 +20,35 @@ fn from_string_tag() {
 }
 
 #[test]
+fn from_string_tag_implicit() {
+    let res = PackageArg::from_string("example.com/hey/there").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "hey/there".into(),
+            tag: "latest".into(),
+            host: Url::parse("https://example.com")
+                .unwrap()
+                .host()
+                .map(|x| x.to_owned()),
+        }
+    )
+}
+
+#[test]
+fn from_string_tag_no_host() {
+    let res = PackageArg::from_string("foo/bar").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "foo/bar".into(),
+            tag: "latest".into(),
+            host: None,
+        }
+    )
+}
+
+#[test]
 fn from_string_version() {
     let res = PackageArg::from_string("example.com/hey/there@1.2.3").unwrap();
     assert_eq!(
@@ -65,6 +94,22 @@ fn from_string_alias() {
                     .unwrap()
                     .host()
                     .map(|x| x.to_owned()),
+            })
+        }
+    )
+}
+
+#[test]
+fn from_string_alias_no_host() {
+    let res = PackageArg::from_string("hi@pkg:hey/there@^1.2.3").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Alias {
+            name: "hi".into(),
+            package: Box::new(PackageArg::Range {
+                name: "hey/there".into(),
+                range: VersionReq::parse("^1.2.3").unwrap(),
+                host: None,
             })
         }
     )

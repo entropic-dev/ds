@@ -35,7 +35,7 @@ pub enum PackageArg {
 }
 
 lazy_static! {
-    static ref RE: Regex = Regex::new(r"^(?P<host>[^/]+)/(?P<name>.*/.*)$").unwrap();
+    static ref RE: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
 }
 
 impl PackageArg {
