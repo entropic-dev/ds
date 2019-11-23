@@ -50,11 +50,11 @@ impl PackageArg {
             .ok_or_else(|| PackageArgError::ParseError)
             .with_context(|| format!("Invalid package arg: {}", s))?;
         Self::resolve(
-            dbg!(matches
+            matches
                 .name("name")
                 .map(|name| name.as_str().to_owned())
-                .unwrap()),
-            dbg!(matches.name("spec").map(|spec| spec.as_str().to_owned())),
+                .unwrap(),
+            matches.name("spec").map(|spec| spec.as_str().to_owned()),
         )
     }
 
