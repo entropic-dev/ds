@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -13,6 +15,10 @@ pub enum PackageArgError {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PackageArg {
+    Dir {
+        name: Option<String>,
+        path: PathBuf,
+    },
     Alias {
         name: String,
         package: Box<PackageArg>,
@@ -40,6 +46,7 @@ lazy_static! {
     static ref PKG: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
     static ref LEGACY: Regex =
         Regex::new(r"(?i)^(?P<host>[^/]+/)?(?P<name>legacy/[^/]+(?:/[^/]+)?)$").unwrap();
+    static ref IS_FILE: Regex = Regex::new(r"(?i)^(?:(?:[a-z]:)?[/\\]|\.[/\\]|file:)").unwrap();
 }
 
 impl PackageArg {
@@ -49,24 +56,34 @@ impl PackageArg {
             .captures(&s)
             .ok_or_else(|| PackageArgError::ParseError)
             .with_context(|| format!("Invalid package arg: {}", s))?;
-        Self::resolve(
-            matches
-                .name("name")
-                .map(|name| name.as_str().to_owned())
-                .unwrap(),
-            matches.name("spec").map(|spec| spec.as_str().to_owned()),
-        )
-    }
-
-    pub fn resolve(name: String, spec: Option<String>) -> Result<PackageArg> {
-        if let Some(spec) = spec {
-            if spec.starts_with("pkg:") {
-                from_alias(name, spec)
+        let name = matches.name("name").map(|name| name.as_str().to_owned());
+        let spec = matches.name("spec").map(|name| name.as_str().to_owned());
+        if let Some(name) = name {
+            if IS_FILE.is_match(&name) {
+                Self::resolve(None, Some(name))
             } else {
-                from_registry(name, Some(spec))
+                Self::resolve(Some(name), spec)
             }
         } else {
+            Self::resolve(name, spec)
+        }
+    }
+
+    pub fn resolve(name: Option<String>, spec: Option<String>) -> Result<PackageArg> {
+        if let Some(spec) = spec {
+            if dbg!(IS_FILE.is_match(&spec)) {
+                from_dir(name, spec)
+            } else if name.is_none() {
+                Err(PackageArgError::ParseError)?
+            } else if spec.starts_with("pkg:") {
+                from_alias(name.unwrap(), spec)
+            } else {
+                from_registry(name.unwrap(), Some(spec))
+            }
+        } else if let Some(name) = name {
             from_registry(name, None)
+        } else {
+            Err(PackageArgError::ParseError)?
         }
     }
 
@@ -78,9 +95,17 @@ impl PackageArg {
     pub fn is_registry(&self) -> bool {
         match self {
             PackageArg::Alias { package, .. } => package.is_registry(),
+            PackageArg::Dir { .. } => false,
             PackageArg::Tag { .. } | PackageArg::Version { .. } | PackageArg::Range { .. } => true,
         }
     }
+}
+
+fn from_dir(name: Option<String>, spec: String) -> Result<PackageArg> {
+    Ok(PackageArg::Dir {
+        name,
+        path: PathBuf::from(spec),
+    })
 }
 
 fn from_alias(name: String, spec: String) -> Result<PackageArg> {
