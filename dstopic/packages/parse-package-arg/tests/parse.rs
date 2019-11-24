@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use semver::{Version, VersionReq};
 use url::Url;
 
@@ -168,6 +170,104 @@ fn from_string_alias_no_host() {
         }
     )
 }
+
+#[test]
+fn from_string_dir() {
+    let res = PackageArg::from_string("./path/to/dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: None,
+            path: PathBuf::from("./path/to/dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_with_name() {
+    let res = PackageArg::from_string("dep@./path/to/dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: Some("dep".into()),
+            path: PathBuf::from("./path/to/dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_absolute() {
+    let res = PackageArg::from_string("/path/to/dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: None,
+            path: PathBuf::from("/path/to/dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_with_name_absolute() {
+    let res = PackageArg::from_string("dep@/path/to/dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: Some("dep".into()),
+            path: PathBuf::from("/path/to/dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_windows() {
+    let res = PackageArg::from_string(".\\path\\to\\dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: None,
+            path: PathBuf::from(".\\path\\to\\dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_with_name_windows() {
+    let res = PackageArg::from_string("dep@.\\path\\to\\dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: Some("dep".into()),
+            path: PathBuf::from(".\\path\\to\\dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_absolute_windows() {
+    let res = PackageArg::from_string("C:\\path\\to\\dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: None,
+            path: PathBuf::from("C:\\path\\to\\dir")
+        }
+    )
+}
+
+#[test]
+fn from_string_dir_with_name_absolute_windows() {
+    let res = PackageArg::from_string("dep@C:\\path\\to\\dir").unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Dir {
+            name: Some("dep".into()),
+            path: PathBuf::from("C:\\path\\to\\dir")
+        }
+    )
+}
+
+// Failures
 
 #[test]
 fn from_string_bad_arg() {
