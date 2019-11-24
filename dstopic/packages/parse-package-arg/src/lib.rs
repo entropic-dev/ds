@@ -71,7 +71,7 @@ impl PackageArg {
 
     pub fn resolve(name: Option<String>, spec: Option<String>) -> Result<PackageArg> {
         if let Some(spec) = spec {
-            if dbg!(IS_FILE.is_match(&spec)) {
+            if IS_FILE.is_match(&spec) {
                 from_dir(name, spec)
             } else if name.is_none() {
                 Err(PackageArgError::ParseError)?
