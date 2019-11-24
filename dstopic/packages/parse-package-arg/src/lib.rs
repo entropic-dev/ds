@@ -43,9 +43,9 @@ pub enum PackageArg {
 lazy_static! {
     static ref SPLITTER: Regex =
         Regex::new(r"(?i)^(?P<name>(?:[^@]+/legacy/@[^@]+|[^@]+))(?:@(?P<spec>.*))?$").unwrap();
-    static ref PKG: Regex = Regex::new(r"^(?P<host>[^/]+/)?(?P<name>[^/]+/[^/]+)$").unwrap();
+    static ref PKG: Regex = Regex::new(r"^(?P<host>[^/]+/)(?P<name>[^/]+/[^/]+)$").unwrap();
     static ref LEGACY: Regex =
-        Regex::new(r"(?i)^(?P<host>[^/]+/)?(?P<name>legacy/[^/]+(?:/[^/]+)?)$").unwrap();
+        Regex::new(r"(?i)^(?P<host>[^/]+/)(?P<name>legacy/[^/]+(?:/[^/]+)?)$").unwrap();
     static ref IS_FILE: Regex = Regex::new(r"(?i)^(?:(?:[a-z]:)?[/\\]|\.[/\\]|file:)").unwrap();
 }
 
@@ -74,7 +74,12 @@ impl PackageArg {
             if IS_FILE.is_match(&spec) {
                 from_dir(name, spec)
             } else if name.is_none() {
-                Err(PackageArgError::ParseError)?
+                Err(PackageArgError::ParseError).with_context(|| {
+                    format!(
+                        "Tried to resolve a registry spec ({}) without a name.",
+                        spec
+                    )
+                })?
             } else if spec.starts_with("pkg:") {
                 from_alias(name.unwrap(), spec)
             } else {
@@ -83,7 +88,7 @@ impl PackageArg {
         } else if let Some(name) = name {
             from_registry(name, None)
         } else {
-            Err(PackageArgError::ParseError)?
+            Err(PackageArgError::ParseError).with_context(|| format!("I don't know"))?
         }
     }
 
