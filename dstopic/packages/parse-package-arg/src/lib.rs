@@ -89,7 +89,9 @@ impl PackageArg {
         } else if let Some(name) = name {
             from_registry(name, None)
         } else {
-            Err(PackageArgError::ParseError).with_context(|| format!("I don't know"))?
+            Err(PackageArgError::ParseError).with_context(|| {
+                format!("Neither a name nor a spec were passed in. Failed to resolve.")
+            })?
         }
     }
 
