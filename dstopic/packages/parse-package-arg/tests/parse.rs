@@ -6,6 +6,22 @@ use url::Url;
 use parse_package_arg::PackageArg;
 
 #[test]
+fn parse_str() {
+    let res: PackageArg = "example.com/hey/there@next".parse().unwrap();
+    assert_eq!(
+        res,
+        PackageArg::Tag {
+            name: "hey/there".into(),
+            tag: "next".into(),
+            host: Url::parse("https://example.com")
+                .unwrap()
+                .host()
+                .map(|x| x.to_owned()),
+        }
+    )
+}
+
+#[test]
 fn from_string_tag() {
     let res = PackageArg::from_string("example.com/hey/there@next").unwrap();
     assert_eq!(

@@ -1,6 +1,7 @@
 use std::path::PathBuf;
+use std::str::FromStr;
 
-use anyhow::{Context, Result};
+use anyhow::{self, Context, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
 use semver::{Version, VersionReq};
@@ -103,6 +104,14 @@ impl PackageArg {
             PackageArg::Dir { .. } => false,
             PackageArg::Tag { .. } | PackageArg::Version { .. } | PackageArg::Range { .. } => true,
         }
+    }
+}
+
+impl FromStr for PackageArg {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        PackageArg::from_string(s)
     }
 }
 
