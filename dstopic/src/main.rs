@@ -1,7 +1,6 @@
-use dstopic;
-use std::fs;
+use dstopic::Dstopic;
+use dstopic_command::Command;
 
-fn main() {
-    dstopic::parse_args::parse_args().get_matches();
-    println!("{}", fs::read_to_string("./Cargo.toml").unwrap().len());
+fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    Dstopic::load().execute()
 }
