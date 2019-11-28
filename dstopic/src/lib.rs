@@ -1,5 +1,5 @@
 use anyhow::Result;
-use dstopic_command::Command;
+use ds_command::{ArgMatches, Config, DsCommand};
 use structopt::StructOpt;
 
 use cmd_config::ConfigCmd;
@@ -17,17 +17,26 @@ pub enum Dstopic {
     Config(ConfigCmd),
 }
 
-impl Command for Dstopic {
-    fn execute(self) -> Result<()> {
+impl DsCommand for Dstopic {
+    fn execute(self, args: ArgMatches, conf: Config) -> Result<()> {
         match self {
-            Dstopic::Hello(hello) => hello.execute(),
-            Dstopic::Config(cfg) => cfg.execute(),
+            Dstopic::Hello(hello) => {
+                hello.execute(args.subcommand_matches("hello").unwrap().clone(), conf)
+            }
+            Dstopic::Config(cfg) => {
+                cfg.execute(args.subcommand_matches("config").unwrap().clone(), conf)
+            }
         }
     }
 }
 
 impl Dstopic {
-    pub fn load() -> Dstopic {
-        Dstopic::from_args()
+    pub fn load() -> Result<()> {
+        let clp = Dstopic::clap();
+        let matches = clp.get_matches();
+        let ds = Dstopic::from_clap(&matches);
+        let cfg = ds_config::new()?;
+        ds.execute(matches, cfg)?;
+        Ok(())
     }
 }

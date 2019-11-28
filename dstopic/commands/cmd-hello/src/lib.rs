@@ -1,16 +1,32 @@
 use anyhow::Result;
-
-use dstopic_command::Command;
+use ds_command::{ArgMatches, Config, DsCommand};
+use serde::Deserialize;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct HelloCmd {
-    arg: Option<String>,
+    #[structopt(help = "who to say hello to", default_value = "world")]
+    arg: String,
+    #[structopt(help = "whether to greet enthusiastically", short, long)]
+    enthusiastic: bool,
 }
 
-impl Command for HelloCmd {
-    fn execute(self) -> Result<()> {
-        println!("Hello, {}", self.arg.unwrap_or("world".into()));
+#[derive(Debug, Deserialize)]
+pub struct HelloOpts {
+    idk: Option<bool>,
+}
+
+impl DsCommand for HelloCmd {
+    fn execute(mut self, arg: ArgMatches, conf: Config) -> Result<()> {
+        if !arg.is_present("enthusiastic") {
+            self.enthusiastic = conf.get_bool("hello.enthusiastic").unwrap_or(false);
+        }
+        print!("Hello, {}", self.arg);
+        if self.enthusiastic {
+            println!("!");
+        } else {
+            println!("");
+        }
         Ok(())
     }
 }

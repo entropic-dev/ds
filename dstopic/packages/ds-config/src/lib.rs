@@ -1,7 +1,9 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use config::{Config, ConfigError, Environment, File};
+use anyhow::Result;
+pub use config::Config;
+use config::{ConfigError, Environment, File};
 use directories::ProjectDirs;
 
 pub fn new_at<P: AsRef<Path>>(working_dir: P) -> Result<Config, ConfigError> {
@@ -24,13 +26,15 @@ fn new_priv(
 ) -> Result<Config, ConfigError> {
     let mut c = Config::new();
     if let Some(config_dir) = config_dir {
-        let path = config_dir.join("ds").display().to_string();
+        let path = config_dir.join("dsrc").display().to_string();
         c.merge(File::with_name(&path[..]).required(false))?;
     }
     if let Some(dir) = working_dir {
         for path in dir.ancestors().collect::<Vec<_>>().iter().rev() {
-            let path = path.join("ds").display().to_string();
-            c.merge(File::with_name(&path[..]).required(false))?;
+            let p = path.join("dsrc").display().to_string();
+            c.merge(File::with_name(&p[..]).required(false))?;
+            let p = path.join(".dsrc").display().to_string();
+            c.merge(File::with_name(&p[..]).required(false))?;
         }
     }
     c.merge(Environment::with_prefix("ds_config"))?;

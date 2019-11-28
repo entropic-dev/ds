@@ -12,7 +12,8 @@ cmd-config = { path = "./commands/cmd-config" }
 cmd-hello = { path = "./commands/cmd-hello" }
 
 # Workspace Deps
-dstopic-command = { path = "./packages/dstopic-command" }
+ds-command = { path = "./packages/ds-command" }
+ds-config = { path = "./packages/ds-config" }
 
 # Actual Deps
 anyhow = "1.0.24"

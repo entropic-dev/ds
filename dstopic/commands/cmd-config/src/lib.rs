@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use dstopic_command::Command;
+use ds_command::{ArgMatches, Config, DsCommand};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -41,8 +41,9 @@ pub struct ConfigOpts {
     global: bool,
 }
 
-impl Command for ConfigCmd {
-    fn execute(self) -> Result<()> {
+impl DsCommand for ConfigCmd {
+    fn execute(self, _: ArgMatches, _: Config) -> Result<()> {
+        println!("{:?}", self);
         match self {
             ConfigCmd::Get { key, .. } => println!("Getting value for {:?}", key),
             ConfigCmd::Set { key, value, .. } => {
