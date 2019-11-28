@@ -1,3 +1,4 @@
+use anyhow::Result;
 use dstopic_command::Command;
 use structopt::StructOpt;
 
@@ -17,7 +18,7 @@ pub enum Dstopic {
 }
 
 impl Command for Dstopic {
-    fn execute(self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    fn execute(self) -> Result<()> {
         match self {
             Dstopic::Hello(hello) => hello.execute(),
             Dstopic::Config(cfg) => cfg.execute(),

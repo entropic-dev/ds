@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use dstopic_command::Command;
 use structopt::StructOpt;
 
@@ -40,7 +42,7 @@ pub struct ConfigOpts {
 }
 
 impl Command for ConfigCmd {
-    fn execute(self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    fn execute(self) -> Result<()> {
         match self {
             ConfigCmd::Get { key, .. } => println!("Getting value for {:?}", key),
             ConfigCmd::Set { key, value, .. } => {

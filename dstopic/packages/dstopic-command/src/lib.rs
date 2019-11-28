@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 pub trait Command {
-    fn execute(self) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
+    fn execute(self) -> Result<()>;
 }

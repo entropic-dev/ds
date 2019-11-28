@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use dstopic_command::Command;
 use structopt::StructOpt;
 
@@ -7,7 +9,7 @@ pub struct HelloCmd {
 }
 
 impl Command for HelloCmd {
-    fn execute(self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    fn execute(self) -> Result<()> {
         println!("Hello, {}", self.arg.unwrap_or("world".into()));
         Ok(())
     }
