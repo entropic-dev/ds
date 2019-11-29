@@ -1,6 +1,5 @@
 use anyhow::Result;
 use ds_command::{ArgMatches, Config, DsCommand};
-use serde::Deserialize;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -9,11 +8,6 @@ pub struct HelloCmd {
     arg: String,
     #[structopt(help = "whether to greet enthusiastically", short, long)]
     enthusiastic: bool,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct HelloOpts {
-    idk: Option<bool>,
 }
 
 impl DsCommand for HelloCmd {
