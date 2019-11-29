@@ -1,60 +1,84 @@
 use std::env;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use config::{Config, ConfigError, Environment, File};
+use anyhow::Result;
+pub use config::Config;
+use config::{ConfigError, Environment, File};
 use directories::ProjectDirs;
-use serde::Deserialize;
 
-#[derive(Debug, Deserialize, PartialEq)]
-#[serde(default)]
-pub struct DsConfig {
-    store: Option<PathBuf>,
+pub struct ConfigOptions {
+    global: bool,
+    local: bool,
+    env: bool,
+    local_config_dir: Option<PathBuf>,
+    global_config_file: Option<PathBuf>,
 }
 
-impl Default for DsConfig {
+impl Default for ConfigOptions {
     fn default() -> Self {
-        DsConfig {
-            store: Self::dirs().map(|d| d.data_dir().join("v1")),
+        ConfigOptions {
+            global: true,
+            local: true,
+            env: true,
+            local_config_dir: env::current_dir().ok().map(|d| d.to_owned()),
+            global_config_file: ProjectDirs::from("dev", "entropic", "ds")
+                .map(|d| d.config_dir().to_owned().join("dsrc.toml")),
         }
     }
 }
 
-impl DsConfig {
-    pub fn new_at<P: AsRef<Path>>(working_dir: P) -> Result<Self, ConfigError> {
-        Self::new_priv(
-            Some(working_dir.as_ref().to_owned()),
-            Self::dirs().map(|d| d.config_dir().to_owned()),
-        )
+impl ConfigOptions {
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    pub fn new() -> Result<Self, ConfigError> {
-        Self::new_priv(
-            env::current_dir().ok(),
-            Self::dirs().map(|d| d.config_dir().to_owned()),
-        )
+    pub fn local(mut self, local: bool) -> Self {
+        self.local = local;
+        self
     }
 
-    fn new_priv(
-        working_dir: Option<PathBuf>,
-        config_dir: Option<PathBuf>,
-    ) -> Result<Self, ConfigError> {
+    pub fn global(mut self, global: bool) -> Self {
+        self.global = global;
+        self
+    }
+
+    pub fn env(mut self, env: bool) -> Self {
+        self.env = env;
+        self
+    }
+
+    pub fn local_config_dir(mut self, dir: Option<PathBuf>) -> Self {
+        self.local_config_dir = dir;
+        self
+    }
+
+    pub fn global_config_file(mut self, file: Option<PathBuf>) -> Self {
+        self.global_config_file = file;
+        self
+    }
+
+    pub fn load(self) -> Result<Config, ConfigError> {
         let mut c = Config::new();
-        if let Some(config_dir) = config_dir {
-            let path = config_dir.join("ds").display().to_string();
-            c.merge(File::with_name(&path[..]).required(false))?;
-        }
-        if let Some(dir) = working_dir {
-            for path in dir.ancestors().collect::<Vec<_>>().iter().rev() {
-                let path = path.join("ds").display().to_string();
+        if self.global {
+            if let Some(config_file) = self.global_config_file {
+                let path = config_file.display().to_string();
                 c.merge(File::with_name(&path[..]).required(false))?;
             }
         }
-        c.merge(Environment::with_prefix("ds_config"))?;
-        c.try_into()
-    }
-
-    fn dirs() -> Option<ProjectDirs> {
-        ProjectDirs::from("dev", "entropic", "ds")
+        if self.local {
+            if let Some(dir) = self.local_config_dir {
+                for path in dir.ancestors().collect::<Vec<_>>().iter().rev() {
+                    let p = path.join("dsrc").display().to_string();
+                    c.merge(File::with_name(&p[..]).required(false))?;
+                    let p = path.join(".dsrc").display().to_string();
+                    c.merge(File::with_name(&p[..]).required(false))?;
+                }
+            }
+        }
+        if self.env {
+            c.merge(Environment::with_prefix("ds_config"))?;
+        }
+        Ok(c)
     }
 }
 
@@ -63,60 +87,83 @@ mod tests {
     use super::*;
     use std::env;
     use std::fs;
-    use std::path::PathBuf;
     use tempfile::tempdir;
 
     #[test]
     fn working_dir_config() {
         let dir = tempdir().unwrap();
-        let file = dir.path().join("ds.toml");
+        let file = dir.path().join("dsrc.toml");
         fs::write(file, "store = \"hello world\"").unwrap();
-        let config =
-            DsConfig::new_priv(Some(dir.path().to_owned()), None).expect("config failed to load?");
+        let config = ConfigOptions::new()
+            .env(false)
+            .global(false)
+            .local_config_dir(Some(dir.path().to_owned()))
+            .load()
+            .expect("config failed to load?");
         assert_eq!(
-            config,
-            DsConfig {
-                store: Some(PathBuf::from("hello world")),
-                ..DsConfig::default()
-            }
+            config.get_str("store").unwrap(),
+            String::from("hello world")
         )
     }
 
     #[test]
     fn parent_dir_config() {
         let dir = tempdir().unwrap();
-        let file = dir.path().join("ds.toml");
+        let file = dir.path().join("dsrc.toml");
         fs::write(file, "store = \"hello world\"").unwrap();
         let subpath = dir.path().join("foo").join("bar");
         fs::create_dir_all(&subpath).unwrap();
-        let config =
-            DsConfig::new_priv(Some(subpath.to_owned()), None).expect("config failed to load?");
+        let config = ConfigOptions::new()
+            .env(false)
+            .global(false)
+            .local_config_dir(Some(subpath.to_owned()))
+            .load()
+            .expect("config failed to load?");
         assert_eq!(
-            config,
-            DsConfig {
-                store: Some(PathBuf::from("hello world")),
-                ..DsConfig::default()
-            }
+            config.get_str("store").unwrap(),
+            String::from("hello world")
         )
     }
 
     #[test]
     fn working_dir_shadowing_config() {
         let dir = tempdir().unwrap();
-        let file = dir.path().join("ds.toml");
+        let file = dir.path().join("dsrc.toml");
         fs::write(file, "store = \"goodbye world\"").unwrap();
         let subpath = dir.path().join("foo").join("bar");
         fs::create_dir_all(&subpath).unwrap();
-        let file = dir.path().join("foo").join("ds.toml");
+        let file = dir.path().join("foo").join("dsrc.toml");
         fs::write(file, "store = \"hello world\"").unwrap();
-        let config =
-            DsConfig::new_priv(Some(subpath.to_owned()), None).expect("config failed to load?");
+        let config = ConfigOptions::new()
+            .env(false)
+            .global(false)
+            .local_config_dir(Some(subpath.to_owned()))
+            .load()
+            .expect("config failed to load?");
         assert_eq!(
-            config,
-            DsConfig {
-                store: Some(PathBuf::from("hello world")),
-                ..DsConfig::default()
-            }
+            config.get_str("store").unwrap(),
+            String::from("hello world")
+        )
+    }
+
+    #[test]
+    fn working_dir_shadowing_config_dotfile() {
+        let dir = tempdir().unwrap();
+        let file = dir.path().join(".dsrc.toml");
+        fs::write(file, "store = \"goodbye world\"").unwrap();
+        let subpath = dir.path().join("foo").join("bar");
+        fs::create_dir_all(&subpath).unwrap();
+        let file = dir.path().join("foo").join(".dsrc.toml");
+        fs::write(file, "store = \"hello world\"").unwrap();
+        let config = ConfigOptions::new()
+            .env(false)
+            .global(false)
+            .local_config_dir(Some(subpath.to_owned()))
+            .load()
+            .expect("config failed to load?");
+        assert_eq!(
+            config.get_str("store").unwrap(),
+            String::from("hello world")
         )
     }
 
@@ -124,45 +171,43 @@ mod tests {
     fn env_configs() {
         let dir = tempdir().unwrap();
         env::set_var("DS_CONFIG_STORE", dir.path().display().to_string());
-        let config = DsConfig::new_priv(None, None).expect("config failed to load?");
+        let config = ConfigOptions::new()
+            .local(false)
+            .global(false)
+            .load()
+            .expect("config failed to load?");
         env::remove_var("DS_CONFIG_STORE");
         assert_eq!(
-            config,
-            DsConfig {
-                store: Some(dir.path().to_owned()),
-                ..DsConfig::default()
-            }
+            config.get_str("store").unwrap(),
+            dir.path().display().to_string()
         )
     }
 
     #[test]
     fn file_config() {
         let dir = tempdir().unwrap();
-        let file = dir.path().join("ds.toml");
-        fs::write(file, "store = \"hello world\"").unwrap();
-        let config =
-            DsConfig::new_priv(None, Some(dir.path().to_owned())).expect("config failed to load?");
+        let file = dir.path().join("dsrc.toml");
+        fs::write(&file, "store = \"hello world\"").unwrap();
+        let config = ConfigOptions::new()
+            .local(false)
+            .env(false)
+            .global_config_file(Some(file.to_owned()))
+            .load()
+            .expect("config failed to load?");
         assert_eq!(
-            config,
-            DsConfig {
-                store: Some(PathBuf::from("hello world")),
-                ..DsConfig::default()
-            }
+            config.get_str("store").unwrap(),
+            String::from("hello world")
         )
     }
 
     #[test]
-    fn default_config() {
-        let config = DsConfig::new_priv(None, None).expect("config failed to load?");
-        assert_eq!(config, DsConfig::default());
-        if let Some(store) = config.store {
-            assert_eq!(
-                store,
-                ProjectDirs::from("dev", "entropic", "ds")
-                    .unwrap()
-                    .data_dir()
-                    .join("v1")
-            );
-        }
+    fn missing_config() {
+        let config = ConfigOptions::new()
+            .local(false)
+            .global(false)
+            .env(false)
+            .load()
+            .expect("config failed to load?");
+        assert!(config.get_str("store").is_err())
     }
 }

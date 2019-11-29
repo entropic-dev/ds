@@ -1,0 +1,12 @@
+[package]
+name = "ds-command"
+version = "0.1.0"
+authors = ["Kat Marchán <kzm@zkat.tech>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.24"
+clap = "2.33.0"
+config = "0.9.3"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

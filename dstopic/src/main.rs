@@ -1,7 +1,7 @@
-use dstopic;
-use std::fs;
+use anyhow::Result;
 
-fn main() {
-    dstopic::parse_args::parse_args().get_matches();
-    println!("{}", fs::read_to_string("./Cargo.toml").unwrap().len());
+use dstopic::Dstopic;
+
+fn main() -> Result<()> {
+    Dstopic::load()
 }

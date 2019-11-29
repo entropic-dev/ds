@@ -1,5 +1,5 @@
 [package]
-name = "ds-config"
+name = "cmd-config"
 version = "0.1.0"
 authors = ["Kat Marchán <kzm@zkat.tech>"]
 edition = "2018"
@@ -7,11 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-config = { version = "0.9.3", features = ["toml"] }
-serde = { version = "1.0.103", features = ["derive"] }
-directories = "2.0.2"
+ds-command = { path = "../../packages/ds-command" }
+ds-config = { path = "../../packages/ds-config" }
+structopt = "0.3.5"
 anyhow = "1.0.24"
-clap = "2.33.0"
-
-[dev-dependencies]
-tempfile = "3.1.0"
