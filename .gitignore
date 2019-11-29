@@ -1,7 +1,3 @@
 /target
 **/*.rs.bk
 /node_modules
-lib
-*.log
-yarn.lock
-.vscode

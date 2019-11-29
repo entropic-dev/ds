@@ -1,7 +1,7 @@
 use anyhow::Result;
 
-use dstopic::Dstopic;
+use ds::Ds;
 
 fn main() -> Result<()> {
-    Dstopic::load()
+    Ds::load()
 }

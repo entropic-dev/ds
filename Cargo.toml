@@ -1,5 +1,5 @@
 [package]
-name = "dstopic"
+name = "ds"
 version = "0.1.0"
 authors = ["Kat Marchán <kzm@zkat.tech>"]
 edition = "2018"

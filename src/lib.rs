@@ -13,39 +13,39 @@ use cmd_hello::HelloCmd;
     author = "Kat Marchán <kzm@zkat.tech>",
     about = "Manage your Entropic packages."
 )]
-pub struct Dstopic {
+pub struct Ds {
     #[structopt(help = "Directory to look for the config file in.", long)]
     config: Option<PathBuf>,
     #[structopt(subcommand)]
-    subcommand: DstopicCmd,
+    subcommand: DsCmd,
 }
 
 #[derive(Debug, StructOpt)]
-pub enum DstopicCmd {
+pub enum DsCmd {
     #[structopt(about = "Say hello to something", alias = "hi", alias = "yo")]
     Hello(HelloCmd),
     #[structopt(about = "Configuration subcommands.", alias = "c")]
     Config(ConfigCmd),
 }
 
-impl DsCommand for Dstopic {
+impl DsCommand for Ds {
     fn execute(self, args: ArgMatches, conf: Config) -> Result<()> {
         match self.subcommand {
-            DstopicCmd::Hello(hello) => {
+            DsCmd::Hello(hello) => {
                 hello.execute(args.subcommand_matches("hello").unwrap().clone(), conf)
             }
-            DstopicCmd::Config(cfg) => {
+            DsCmd::Config(cfg) => {
                 cfg.execute(args.subcommand_matches("config").unwrap().clone(), conf)
             }
         }
     }
 }
 
-impl Dstopic {
+impl Ds {
     pub fn load() -> Result<()> {
-        let clp = Dstopic::clap();
+        let clp = Ds::clap();
         let matches = clp.get_matches();
-        let ds = Dstopic::from_clap(&matches);
+        let ds = Ds::from_clap(&matches);
         let cfg = if let Some(file) = &ds.config {
             ConfigOptions::new()
                 .local(false)
