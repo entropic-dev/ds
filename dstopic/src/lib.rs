@@ -22,9 +22,9 @@ pub struct Dstopic {
 
 #[derive(Debug, StructOpt)]
 pub enum DstopicCmd {
-    #[structopt(about = "Say hello to something")]
+    #[structopt(about = "Say hello to something", alias = "hi", alias = "yo")]
     Hello(HelloCmd),
-    #[structopt(about = "Configuration subcommands.")]
+    #[structopt(about = "Configuration subcommands.", alias = "c")]
     Config(ConfigCmd),
 }
 
