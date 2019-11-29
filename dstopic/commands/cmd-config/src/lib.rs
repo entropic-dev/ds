@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use ds_command::{ArgMatches, Config, DsCommand};
 use structopt::StructOpt;
@@ -24,13 +24,6 @@ pub enum ConfigCmd {
         #[structopt(flatten)]
         opts: ConfigOpts,
     },
-    #[structopt(about = "Lists current config values.")]
-    List {
-        #[structopt(long)]
-        json: bool,
-        #[structopt(flatten)]
-        opts: ConfigOpts,
-    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -42,15 +35,17 @@ pub struct ConfigOpts {
 }
 
 impl DsCommand for ConfigCmd {
-    fn execute(self, _: ArgMatches, _: Config) -> Result<()> {
-        println!("{:?}", self);
+    fn execute(self, _: ArgMatches, config: Config) -> Result<()> {
         match self {
-            ConfigCmd::Get { key, .. } => println!("Getting value for {:?}", key),
-            ConfigCmd::Set { key, value, .. } => {
-                println!("Setting value for {:?} to {:?}", key, value)
+            ConfigCmd::Get { key, .. } => {
+                if let Ok(val) = config.get_str(&key) {
+                    println!("{}", val);
+                } else {
+                    return Err(anyhow!("No value set for key: {:?}", key));
+                }
             }
-            ConfigCmd::Rm { key, .. } => println!("Getting value for {:?}", key),
-            ConfigCmd::List { json, .. } => println!("printing out all configs (json: {:?})", json),
+            ConfigCmd::Set { .. } => return Err(anyhow!("Command not yet implemented.")),
+            ConfigCmd::Rm { .. } => return Err(anyhow!("Command not yet implemented.")),
         }
         Ok(())
     }
