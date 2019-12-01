@@ -1,4 +1,5 @@
 use anyhow::Result;
+use async_trait::async_trait;
 use ds_command::{ArgMatches, Config, DsCommand};
 use structopt::StructOpt;
 
@@ -10,8 +11,9 @@ pub struct HelloCmd {
     enthusiastic: bool,
 }
 
+#[async_trait]
 impl DsCommand for HelloCmd {
-    fn execute(mut self, arg: ArgMatches, conf: Config) -> Result<()> {
+    async fn execute(mut self, arg: ArgMatches<'_>, conf: Config) -> Result<()> {
         if !arg.is_present("enthusiastic") {
             self.enthusiastic = conf.get_bool("hello.enthusiastic").unwrap_or(false);
         }

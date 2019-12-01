@@ -1,7 +1,9 @@
 use anyhow::Result;
+use async_trait::async_trait;
 pub use clap::ArgMatches;
 pub use config::Config;
 
+#[async_trait]
 pub trait DsCommand {
-    fn execute(self, matches: ArgMatches, config: Config) -> Result<()>;
+    async fn execute(self, matches: ArgMatches<'_>, config: Config) -> Result<()>;
 }
