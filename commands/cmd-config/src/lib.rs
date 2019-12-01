@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-
+use async_trait::async_trait;
 use ds_command::{ArgMatches, Config, DsCommand};
 use structopt::StructOpt;
 
@@ -34,8 +34,9 @@ pub struct ConfigOpts {
     global: bool,
 }
 
+#[async_trait]
 impl DsCommand for ConfigCmd {
-    fn execute(self, _: ArgMatches, config: Config) -> Result<()> {
+    async fn execute(self, _: ArgMatches<'_>, config: Config) -> Result<()> {
         match self {
             ConfigCmd::Get { key, .. } => {
                 if let Ok(val) = config.get_str(&key) {

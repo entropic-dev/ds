@@ -14,3 +14,4 @@ anyhow = "1.0.24"
 lazy_static = "1.4.0"
 config = "0.9.3"
 serde = { version = "1.0.103", features = ["derive"] }
+async-trait = "0.1.19"
