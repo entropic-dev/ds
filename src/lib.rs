@@ -37,13 +37,17 @@ impl DsCommand for Ds {
     async fn execute(self, args: ArgMatches<'_>, conf: Config) -> Result<()> {
         match self.subcommand {
             DsCmd::Hello(hello) => {
-                hello.execute(args.subcommand_matches("hello").unwrap().clone(), conf).await
+                hello
+                    .execute(args.subcommand_matches("hello").unwrap().clone(), conf)
+                    .await
             }
             DsCmd::Config(cfg) => {
-                cfg.execute(args.subcommand_matches("config").unwrap().clone(), conf).await
+                cfg.execute(args.subcommand_matches("config").unwrap().clone(), conf)
+                    .await
             }
             DsCmd::Ping(ping) => {
-                ping.execute(args.subcommand_matches("ping").unwrap().clone(), conf).await
+                ping.execute(args.subcommand_matches("ping").unwrap().clone(), conf)
+                    .await
             }
         }
     }

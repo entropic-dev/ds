@@ -1,8 +1,9 @@
 use anyhow::Result;
-use async_std::task;
+use async_std;
 
 use ds::Ds;
 
-fn main() -> Result<()> {
-    task::block_on(Ds::load())
+#[async_std::main]
+async fn main() -> Result<()> {
+    Ds::load().await
 }
