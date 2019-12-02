@@ -14,7 +14,7 @@ pub struct HelloCmd {
 #[async_trait]
 impl DsCommand for HelloCmd {
     async fn execute(mut self, arg: ArgMatches<'_>, conf: Config) -> Result<()> {
-        if !arg.is_present("enthusiastic") {
+        if arg.occurrences_of("enthusiastic") == 0 {
             self.enthusiastic = conf.get_bool("hello.enthusiastic").unwrap_or(false);
         }
         print!("Hello, {}", self.arg);

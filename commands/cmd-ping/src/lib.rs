@@ -30,7 +30,7 @@ struct EntropicError {
 #[async_trait]
 impl DsCommand for PingCmd {
     async fn execute(mut self, args: ArgMatches<'_>, config: Config) -> Result<()> {
-        if !args.is_present("registry") {
+        if args.occurrences_of("registry") == 0 {
             self.registry = Url::parse(
                 &config
                     .get_str("registry")
