@@ -1,5 +1,5 @@
 [package]
-name = "pick-version"
+name = "ds-api-types"
 version = "0.1.0"
 authors = ["Kat Marchán <kzm@zkat.tech>"]
 edition = "2018"
@@ -7,15 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-parse-package-arg = { path = "../../packages/parse-package-arg" }
-ds-api-types = { path = "../../packages/ds-api-types" }
-
-semver = "0.9.0"
-serde_json = "1.0.42"
-anyhow = "1.0.25"
+chrono = { version = "0.4.10", features = ["serde"] }
+semver = { version = "0.9.0", features = ["serde"] }
 ssri = "5.0.0"
-chrono = "0.4.10"
-thiserror = "1.0.9"
+serde = { version = "1.0.103", features = ["derive"] }
 
 [dev-dependencies]
 maplit = "1.0.2"
+serde_json = "1.0.44"
