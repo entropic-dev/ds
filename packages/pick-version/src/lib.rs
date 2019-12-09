@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
 use anyhow::{Context, Result};
-use chrono::prelude::*;
+use ds_api_types::EntropicPackument;
 use parse_package_arg::PackageArg;
 use semver::{Version, VersionReq};
 use ssri::Integrity;
@@ -27,30 +25,6 @@ pub enum PickerError {
     InvalidPackageArg,
 }
 
-// TODO - this type should probably live elsewhere.
-#[derive(Debug, Clone)]
-pub struct Packument {
-    pub created: DateTime<Utc>,
-    pub modified: DateTime<Utc>,
-    pub name: String,
-    pub require_tfa: bool,
-    pub tags: HashMap<String, Version>,
-    pub versions: HashMap<Version, Integrity>,
-}
-
-impl Default for Packument {
-    fn default() -> Self {
-        Packument {
-            created: Utc::now(),
-            modified: Utc::now(),
-            name: "foo".into(),
-            require_tfa: false,
-            tags: HashMap::new(),
-            versions: HashMap::new(),
-        }
-    }
-}
-
 impl Picker {
     pub fn new() -> Self {
         Picker::default()
@@ -61,7 +35,7 @@ impl Picker {
         self
     }
 
-    pub fn pick(&self, packument: &Packument, wanted: &PackageArg) -> Result<Integrity> {
+    pub fn pick(&self, packument: &EntropicPackument, wanted: &PackageArg) -> Result<Integrity> {
         if packument.versions.len() == 0 {
             Err(PickerError::NoVersion).with_context(|| {
                 format!(
