@@ -3,13 +3,9 @@ name: Test ds
 on:
   push:
     paths-ignore:
-      - ".github/**"
-      - "*.md"
       - "dstopic/**"
   pull_request:
     paths-ignore:
-      - ".github/**"
-      - "*.md"
       - "dstopic/**"
 
 jobs:

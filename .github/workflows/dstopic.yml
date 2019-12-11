@@ -3,9 +3,11 @@ name: Test dstopic
 on:
   push:
     paths:
+      - ".github/**"
       - "dstopic/**"
   pull_request:
     paths:
+      - ".github/**"
       - "dstopic/**"
 
 jobs:
