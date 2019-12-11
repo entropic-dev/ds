@@ -26,6 +26,24 @@ pub struct Ds {
     subcommand: DsCmd,
 }
 
+impl Ds {
+    pub async fn load() -> Result<()> {
+        let clp = Ds::clap();
+        let matches = clp.get_matches();
+        let ds = Ds::from_clap(&matches);
+        let cfg = if let Some(file) = &ds.config {
+            ConfigOptions::new()
+                .local(false)
+                .global_config_file(Some(file.clone()))
+                .load()?
+        } else {
+            ConfigOptions::new().load()?
+        };
+        ds.execute(matches, cfg).await?;
+        Ok(())
+    }
+}
+
 #[derive(Debug, StructOpt)]
 pub enum DsCmd {
     #[structopt(about = "Say hello to something", alias = "hi", alias = "yo")]
@@ -54,23 +72,5 @@ impl DsCommand for Ds {
                     .await
             }
         }
-    }
-}
-
-impl Ds {
-    pub async fn load() -> Result<()> {
-        let clp = Ds::clap();
-        let matches = clp.get_matches();
-        let ds = Ds::from_clap(&matches);
-        let cfg = if let Some(file) = &ds.config {
-            ConfigOptions::new()
-                .local(false)
-                .global_config_file(Some(file.clone()))
-                .load()?
-        } else {
-            ConfigOptions::new().load()?
-        };
-        ds.execute(matches, cfg).await?;
-        Ok(())
     }
 }
