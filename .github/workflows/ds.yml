@@ -8,8 +8,29 @@ on:
     paths-ignore:
       - "dstopic/**"
 
+env:
+  RUSTFLAGS: -Dwarnings
+
 jobs:
-  test:
+  fmt_and_docs:
+    name: Check fmt & docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt
+          override: true
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+      - name: docs
+        run: cargo doc
+
+  build_and_test:
+    name: Build & Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -23,7 +44,7 @@ jobs:
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
-          components: rustfmt, clippy
+          components: clippy
           override: true
       - name: Cache cargo registry
         uses: actions/cache@v1
@@ -42,8 +63,6 @@ jobs:
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
       - name: Check
         run: cargo check
-      - name: Rustfmt
-        run: cargo fmt --all -- --check
       - name: Clippy
         run: cargo clippy -- -D warnings
       - name: Run tests
