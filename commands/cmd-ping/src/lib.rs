@@ -13,7 +13,6 @@ use url::Url;
 #[derive(Debug, StructOpt)]
 pub struct PingCmd {
     #[structopt(
-        long,
         help = "Registry to ping.",
         default_value = "https://registry.entropic.dev"
     )]
@@ -65,7 +64,7 @@ impl PingCmd {
                     Err(err) => bail!("Failed to get response body: {}", err),
                 },
             };
-            return Err(anyhow!("Caught error pinging {}: {}", self.registry, msg));
+            return Err(anyhow!("Ping failed for {}: {}", self.registry, msg));
         }
 
         let time = start.elapsed().as_millis() as u64;
@@ -80,7 +79,7 @@ impl PingCmd {
                 serde_json::to_string_pretty(&serde_json::json!({
                     "registry": self.registry.to_string(),
                     "time": time,
-                    "details": details
+                    "details": details,
                 }))?
             )?;
         } else {
@@ -98,12 +97,13 @@ impl PingCmd {
 mod tests {
     use super::*;
 
+    use anyhow::Result;
     use async_std;
     use mockito::mock;
     use serde_json::json;
 
     #[async_std::test]
-    async fn basic() {
+    async fn basic() -> Result<()> {
         let m = mock("GET", "/")
             .with_status(200)
             .with_body("hello, world!")
@@ -112,20 +112,21 @@ mod tests {
         let mut stdout: Vec<u8> = Vec::new();
         let mut stderr: Vec<u8> = Vec::new();
         let cmd = PingCmd {
-            registry: Url::parse(registry).unwrap(),
+            registry: Url::parse(registry)?,
             json: false,
         };
-        cmd.ping(&mut stdout, &mut stderr).await.unwrap();
+        cmd.ping(&mut stdout, &mut stderr).await?;
         m.assert();
-        assert_eq!(String::from_utf8(stdout).unwrap(), "");
-        let stderr = String::from_utf8(stderr).unwrap();
+        assert_eq!(String::from_utf8(stdout)?, "");
+        let stderr = String::from_utf8(stderr)?;
         assert!(stderr.contains(&format!("PING: {}", registry)));
         assert!(stderr.contains("PONG:"));
         assert!(stderr.contains("hello, world!"));
+        Ok(())
     }
 
     #[async_std::test]
-    async fn json() {
+    async fn json() -> Result<()> {
         let m = mock("GET", "/")
             .with_status(200)
             .with_body(r#"{"message": "hello, world!"}"#)
@@ -134,30 +135,32 @@ mod tests {
         let mut stdout: Vec<u8> = Vec::new();
         let mut stderr: Vec<u8> = Vec::new();
         let cmd = PingCmd {
-            registry: Url::parse(registry).unwrap(),
+            registry: Url::parse(registry)?,
             json: true,
         };
 
-        cmd.ping(&mut stdout, &mut stderr).await.unwrap();
+        cmd.ping(&mut stdout, &mut stderr).await?;
         m.assert();
 
-        let stdout = String::from_utf8(stdout).unwrap();
+        let stdout = String::from_utf8(stdout)?;
         assert!(stdout.contains(r#""message": "hello, world!""#));
-        let mut parsed = serde_json::from_str::<Value>(&stdout).unwrap();
+        let mut parsed = serde_json::from_str::<Value>(&stdout)?;
         assert!(parsed["time"].take().is_number());
         assert_eq!(
             parsed,
             json!({
-                "registry": Url::parse(registry).unwrap().to_string(),
+                "registry": Url::parse(registry)?.to_string(),
                 "details": {
                     "message": "hello, world!"
                 },
-                "time": null
+                "time": null,
             })
         );
 
         let stderr = String::from_utf8(stderr).unwrap();
         assert!(stderr.contains(&format!("PING: {}", registry)));
         assert!(stderr.contains("PONG:"));
+
+        Ok(())
     }
 }
