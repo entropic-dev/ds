@@ -85,129 +85,111 @@ impl ConfigOptions {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     use std::env;
     use std::fs;
+
+    use anyhow::Result;
     use tempfile::tempdir;
 
     #[test]
-    fn working_dir_config() {
-        let dir = tempdir().unwrap();
+    fn working_dir_config() -> Result<()> {
+        let dir = tempdir()?;
         let file = dir.path().join("dsrc.toml");
-        fs::write(file, "store = \"hello world\"").unwrap();
+        fs::write(file, "store = \"hello world\"")?;
         let config = ConfigOptions::new()
             .env(false)
             .global(false)
             .local_config_dir(Some(dir.path().to_owned()))
-            .load()
-            .expect("config failed to load?");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            String::from("hello world")
-        )
+            .load()?;
+        assert_eq!(config.get_str("store")?, String::from("hello world"));
+        Ok(())
     }
 
     #[test]
-    fn parent_dir_config() {
-        let dir = tempdir().unwrap();
+    fn parent_dir_config() -> Result<()> {
+        let dir = tempdir()?;
         let file = dir.path().join("dsrc.toml");
-        fs::write(file, "store = \"hello world\"").unwrap();
+        fs::write(file, "store = \"hello world\"")?;
         let subpath = dir.path().join("foo").join("bar");
-        fs::create_dir_all(&subpath).unwrap();
+        fs::create_dir_all(&subpath)?;
         let config = ConfigOptions::new()
             .env(false)
             .global(false)
             .local_config_dir(Some(subpath.to_owned()))
-            .load()
-            .expect("config failed to load?");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            String::from("hello world")
-        )
+            .load()?;
+        assert_eq!(config.get_str("store")?, String::from("hello world"));
+        Ok(())
     }
 
     #[test]
-    fn working_dir_shadowing_config() {
-        let dir = tempdir().unwrap();
+    fn working_dir_shadowing_config() -> Result<()> {
+        let dir = tempdir()?;
         let file = dir.path().join("dsrc.toml");
-        fs::write(file, "store = \"goodbye world\"").unwrap();
+        fs::write(file, "store = \"goodbye world\"")?;
         let subpath = dir.path().join("foo").join("bar");
-        fs::create_dir_all(&subpath).unwrap();
+        fs::create_dir_all(&subpath)?;
         let file = dir.path().join("foo").join("dsrc.toml");
-        fs::write(file, "store = \"hello world\"").unwrap();
+        fs::write(file, "store = \"hello world\"")?;
         let config = ConfigOptions::new()
             .env(false)
             .global(false)
             .local_config_dir(Some(subpath.to_owned()))
-            .load()
-            .expect("config failed to load?");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            String::from("hello world")
-        )
+            .load()?;
+        assert_eq!(config.get_str("store")?, String::from("hello world"));
+        Ok(())
     }
 
     #[test]
-    fn working_dir_shadowing_config_dotfile() {
-        let dir = tempdir().unwrap();
+    fn working_dir_shadowing_config_dotfile() -> Result<()> {
+        let dir = tempdir()?;
         let file = dir.path().join(".dsrc.toml");
-        fs::write(file, "store = \"goodbye world\"").unwrap();
+        fs::write(file, "store = \"goodbye world\"")?;
         let subpath = dir.path().join("foo").join("bar");
-        fs::create_dir_all(&subpath).unwrap();
+        fs::create_dir_all(&subpath)?;
         let file = dir.path().join("foo").join(".dsrc.toml");
-        fs::write(file, "store = \"hello world\"").unwrap();
+        fs::write(file, "store = \"hello world\"")?;
         let config = ConfigOptions::new()
             .env(false)
             .global(false)
             .local_config_dir(Some(subpath.to_owned()))
-            .load()
-            .expect("config failed to load?");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            String::from("hello world")
-        )
+            .load()?;
+        assert_eq!(config.get_str("store")?, String::from("hello world"));
+        Ok(())
     }
 
     #[test]
-    fn env_configs() {
-        let dir = tempdir().unwrap();
+    fn env_configs() -> Result<()> {
+        let dir = tempdir()?;
         env::set_var("DS_CONFIG_STORE", dir.path().display().to_string());
-        let config = ConfigOptions::new()
-            .local(false)
-            .global(false)
-            .load()
-            .expect("config failed to load?");
+        let config = ConfigOptions::new().local(false).global(false).load()?;
         env::remove_var("DS_CONFIG_STORE");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            dir.path().display().to_string()
-        )
+        assert_eq!(config.get_str("store")?, dir.path().display().to_string());
+        Ok(())
     }
 
     #[test]
-    fn file_config() {
-        let dir = tempdir().unwrap();
+    fn file_config() -> Result<()> {
+        let dir = tempdir()?;
         let file = dir.path().join("dsrc.toml");
-        fs::write(&file, "store = \"hello world\"").unwrap();
+        fs::write(&file, "store = \"hello world\"")?;
         let config = ConfigOptions::new()
             .local(false)
             .env(false)
             .global_config_file(Some(file.to_owned()))
-            .load()
-            .expect("config failed to load?");
-        assert_eq!(
-            config.get_str("store").unwrap(),
-            String::from("hello world")
-        )
+            .load()?;
+        assert_eq!(config.get_str("store")?, String::from("hello world"));
+        Ok(())
     }
 
     #[test]
-    fn missing_config() {
+    fn missing_config() -> Result<()> {
         let config = ConfigOptions::new()
             .local(false)
             .global(false)
             .env(false)
-            .load()
-            .expect("config failed to load?");
-        assert!(config.get_str("store").is_err())
+            .load()?;
+        assert!(config.get_str("store").is_err());
+        Ok(())
     }
 }
