@@ -16,11 +16,7 @@ use cmd_ping::PingCmd;
     about = "Manage your Entropic packages."
 )]
 pub struct Ds {
-    #[structopt(
-        help = "Directory to look for the config file in.",
-        long,
-        global = true
-    )]
+    #[structopt(help = "File to read configuration values from.", long, global = true)]
     config: Option<PathBuf>,
     #[structopt(subcommand)]
     subcommand: DsCmd,
