@@ -26,7 +26,7 @@ impl Ds {
     pub async fn load() -> Result<()> {
         let clp = Ds::clap();
         let matches = clp.get_matches();
-        let ds = Ds::from_clap(&matches);
+        let mut ds = Ds::from_clap(&matches);
         let cfg = if let Some(file) = &ds.config {
             ConfigOptions::new()
                 .local(false)
@@ -35,7 +35,8 @@ impl Ds {
         } else {
             ConfigOptions::new().load()?
         };
-        ds.execute(matches, cfg).await?;
+        ds.layer_config(matches, cfg)?;
+        ds.execute().await?;
         Ok(())
     }
 }
@@ -52,21 +53,25 @@ pub enum DsCmd {
 
 #[async_trait]
 impl DsCommand for Ds {
-    async fn execute(self, args: ArgMatches<'_>, conf: Config) -> Result<()> {
+    fn layer_config(&mut self, args: ArgMatches<'_>, conf: Config) -> Result<()> {
         match self.subcommand {
-            DsCmd::Hello(hello) => {
-                hello
-                    .execute(args.subcommand_matches("hello").unwrap().clone(), conf)
-                    .await
+            DsCmd::Hello(ref mut hello) => {
+                hello.layer_config(args.subcommand_matches("hello").unwrap().clone(), conf)
             }
-            DsCmd::Config(cfg) => {
-                cfg.execute(args.subcommand_matches("config").unwrap().clone(), conf)
-                    .await
+            DsCmd::Config(ref mut cfg) => {
+                cfg.layer_config(args.subcommand_matches("config").unwrap().clone(), conf)
             }
-            DsCmd::Ping(ping) => {
-                ping.execute(args.subcommand_matches("ping").unwrap().clone(), conf)
-                    .await
+            DsCmd::Ping(ref mut ping) => {
+                ping.layer_config(args.subcommand_matches("ping").unwrap().clone(), conf)
             }
+        }
+    }
+
+    async fn execute(self) -> Result<()> {
+        match self.subcommand {
+            DsCmd::Hello(hello) => hello.execute().await,
+            DsCmd::Config(cfg) => cfg.execute().await,
+            DsCmd::Ping(ping) => ping.execute().await,
         }
     }
 }

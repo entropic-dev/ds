@@ -28,15 +28,16 @@ struct EntropicError {
 
 #[async_trait]
 impl DsCommand for PingCmd {
-    async fn execute(mut self, args: ArgMatches<'_>, config: Config) -> Result<()> {
+    fn layer_config(&mut self, args: ArgMatches<'_>, config: Config) -> Result<()> {
         if args.occurrences_of("registry") == 0 {
-            self.registry = Url::parse(
-                &config
-                    .get_str("registry")
-                    .unwrap_or("https://registry.entropic.dev".into()),
-            )
-            .context("Failed to parse registry URL")?;
+            if let Ok(reg) = config.get_str("registry") {
+                self.registry = Url::parse(&reg).context("Failed to parse registry URL.")?;
+            }
         }
+        Ok(())
+    }
+
+    async fn execute(self) -> Result<()> {
         self.ping(io::stdout(), io::stderr()).await
     }
 }

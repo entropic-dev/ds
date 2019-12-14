@@ -5,5 +5,8 @@ pub use config::Config;
 
 #[async_trait]
 pub trait DsCommand {
-    async fn execute(self, matches: ArgMatches<'_>, config: Config) -> Result<()>;
+    fn layer_config(&mut self, _matches: ArgMatches, _config: Config) -> Result<()> {
+        Ok(())
+    }
+    async fn execute(self) -> Result<()>;
 }

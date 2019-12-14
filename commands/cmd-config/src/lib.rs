@@ -41,16 +41,23 @@ pub struct ConfigOpts {
 
 #[async_trait]
 impl DsCommand for ConfigCmd {
-    async fn execute(mut self, args: ArgMatches<'_>, _: Config) -> Result<()> {
+    fn layer_config(&mut self, args: ArgMatches<'_>, _: Config) -> Result<()> {
         match self {
-            ConfigCmd::Get { key, mut opts } => {
+            ConfigCmd::Get { ref mut opts, .. } => {
                 opts.config = if args.is_present("config") {
                     args.value_of("config").map(PathBuf::from)
                 } else {
                     None
                 };
-                config_read(key, opts)?
+                Ok(())
             }
+            _ => Ok(()),
+        }
+    }
+
+    async fn execute(mut self) -> Result<()> {
+        match self {
+            ConfigCmd::Get { key, opts } => config_read(key, opts)?,
             ConfigCmd::Set { .. } => return Err(anyhow!("Command not yet implemented.")),
             ConfigCmd::Rm { .. } => return Err(anyhow!("Command not yet implemented.")),
         }

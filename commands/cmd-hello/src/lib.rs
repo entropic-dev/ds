@@ -13,10 +13,16 @@ pub struct HelloCmd {
 
 #[async_trait]
 impl DsCommand for HelloCmd {
-    async fn execute(mut self, arg: ArgMatches<'_>, conf: Config) -> Result<()> {
+    fn layer_config(&mut self, arg: ArgMatches, conf: Config) -> Result<()> {
         if arg.occurrences_of("enthusiastic") == 0 {
-            self.enthusiastic = conf.get_bool("hello.enthusiastic").unwrap_or(false);
+            if let Ok(val) = conf.get_bool("hello.enthusiastic") {
+                self.enthusiastic = val;
+            }
         }
+        Ok(())
+    }
+
+    async fn execute(self) -> Result<()> {
         print!("Hello, {}", self.arg);
         if self.enthusiastic {
             println!("!");
