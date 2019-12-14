@@ -450,6 +450,7 @@ dependencies = [
  "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "async-std 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "async-trait 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cmd-config 0.1.0",
  "cmd-hello 0.1.0",
  "cmd-ping 0.1.0",

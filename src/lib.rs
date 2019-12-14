@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use async_trait::async_trait;
+use clap;
 use ds_command::{ArgMatches, Config, DsCommand};
 use ds_config::ConfigOptions;
 use structopt::StructOpt;
@@ -13,7 +14,10 @@ use cmd_ping::PingCmd;
 #[derive(Debug, StructOpt)]
 #[structopt(
     author = "Kat Marchán <kzm@zkat.tech>",
-    about = "Manage your Entropic packages."
+    about = "Manage your Entropic packages.",
+    setting = clap::AppSettings::ColoredHelp,
+    setting = clap::AppSettings::DisableHelpSubcommand,
+    setting = clap::AppSettings::DeriveDisplayOrder,
 )]
 pub struct Ds {
     #[structopt(help = "File to read configuration values from.", long, global = true)]
