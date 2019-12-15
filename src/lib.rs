@@ -9,6 +9,7 @@ use structopt::StructOpt;
 
 use cmd_config::ConfigCmd;
 use cmd_ping::PingCmd;
+use cmd_shell::ShellCmd;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -50,6 +51,12 @@ pub enum DsCmd {
     Config(ConfigCmd),
     #[structopt(about = "Ping an entropic server")]
     Ping(PingCmd),
+    #[structopt(
+        about = "Execute a new wrapped `node` shell.",
+        alias = "sh",
+        setting = clap::AppSettings::TrailingVarArg
+    )]
+    Shell(ShellCmd),
 }
 
 #[async_trait]
@@ -62,6 +69,9 @@ impl DsCommand for Ds {
             DsCmd::Ping(ref mut ping) => {
                 ping.layer_config(args.subcommand_matches("ping").unwrap().clone(), conf)
             }
+            DsCmd::Shell(ref mut shell) => {
+                shell.layer_config(args.subcommand_matches("shell").unwrap().clone(), conf)
+            }
         }
     }
 
@@ -69,6 +79,7 @@ impl DsCommand for Ds {
         match self.subcommand {
             DsCmd::Config(cfg) => cfg.execute().await,
             DsCmd::Ping(ping) => ping.execute().await,
+            DsCmd::Shell(shell) => shell.execute().await,
         }
     }
 }
