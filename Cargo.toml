@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 # Subcommands
 cmd-config = { path = "./commands/cmd-config" }
-cmd-hello = { path = "./commands/cmd-hello" }
 cmd-ping = { path = "./commands/cmd-ping" }
 
 # Workspace Deps

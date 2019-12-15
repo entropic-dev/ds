@@ -8,7 +8,6 @@ use ds_config::ConfigOptions;
 use structopt::StructOpt;
 
 use cmd_config::ConfigCmd;
-use cmd_hello::HelloCmd;
 use cmd_ping::PingCmd;
 
 #[derive(Debug, StructOpt)]
@@ -47,8 +46,6 @@ impl Ds {
 
 #[derive(Debug, StructOpt)]
 pub enum DsCmd {
-    #[structopt(about = "Say hello to something", alias = "hi", alias = "yo")]
-    Hello(HelloCmd),
     #[structopt(about = "Configuration subcommands.", alias = "c")]
     Config(ConfigCmd),
     #[structopt(about = "Ping an entropic server")]
@@ -59,9 +56,6 @@ pub enum DsCmd {
 impl DsCommand for Ds {
     fn layer_config(&mut self, args: ArgMatches<'_>, conf: Config) -> Result<()> {
         match self.subcommand {
-            DsCmd::Hello(ref mut hello) => {
-                hello.layer_config(args.subcommand_matches("hello").unwrap().clone(), conf)
-            }
             DsCmd::Config(ref mut cfg) => {
                 cfg.layer_config(args.subcommand_matches("config").unwrap().clone(), conf)
             }
@@ -73,7 +67,6 @@ impl DsCommand for Ds {
 
     async fn execute(self) -> Result<()> {
         match self.subcommand {
-            DsCmd::Hello(hello) => hello.execute().await,
             DsCmd::Config(cfg) => cfg.execute().await,
             DsCmd::Ping(ping) => ping.execute().await,
         }
