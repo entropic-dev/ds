@@ -1,68 +1,24 @@
 {
   "name": "dstopic",
+  "private": true,
   "version": "1.0.0",
   "description": "javascript runtime",
   "main": "index.js",
-  "files": [
-    "bin",
-    "lib"
-  ],
   "scripts": {
-    "clean": "rimraf lib",
-    "start": "tsc --watch",
-    "build": "tsc",
-    "test": "ava"
+    "build": "webpack --entry ./src/index.js --mode production --target node -o dist/dstopic.js",
+    "check": "prettier -c ./src/**",
+    "clean": "rimraf dist",
+    "format": "prettier --write ./src/**"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx lint-staged"
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/entropic-dev/ds.git"
-  },
-  "author": "Kat Marchán <npm@zkat.tech>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/entropic-dev/ds/issues"
-  },
-  "homepage": "https://github.com/entropic-dev/ds#readme",
   "devDependencies": {
-    "@types/node": "^12.6.0",
-    "@types/yargs": "^13.0.0",
-    "@typescript-eslint/eslint-plugin": "^1.11.0",
-    "@typescript-eslint/parser": "^1.11.0",
-    "ava": "^2.2.0",
-    "eslint": "^6.0.1",
-    "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-react": "^7.14.2",
-    "husky": "^3.0.0",
-    "lint-staged": "^9.1.0",
     "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.6.0-dev.20190704"
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-plugin-transform-typescript": "^7.0.0-alpha.19",
-    "esm": "^3.2.25",
-    "figgy-pudding": "^3.5.1",
-    "ink": "^2.3.0",
-    "react": "^16.8.6",
-    "yargs": "^13.2.4"
-  },
-  "ava": {
-    "compileEnhancements": false,
-    "extensions": [
-      "ts"
-    ],
-    "require": [
-      "ts-node/register",
-      "esm"
-    ]
+    "babel-plugin-transform-typescript": "^7.0.0-alpha.19"
   }
 }
