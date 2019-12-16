@@ -3,11 +3,13 @@ name = "ds"
 version = "0.1.0"
 authors = ["Kat Marchán <kzm@zkat.tech>"]
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
 # Subcommands
 cmd-config = { path = "./commands/cmd-config" }
 cmd-ping = { path = "./commands/cmd-ping" }
+cmd-shell = { path = "./commands/cmd-shell" }
 
 # Workspace Deps
 ds-command = { path = "./packages/ds-command" }
@@ -24,3 +26,6 @@ clap = "2.33.0"
 [workspace]
 members = [".", "packages/*", "commands/*"]
 default-members = [".", "packages/*", "commands/*"]
+
+[build-dependencies]
+anyhow = "1.0.24"

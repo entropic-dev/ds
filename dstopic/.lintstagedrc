@@ -1,5 +1,0 @@
-{
-  "*.json": ["prettier --write", "git add"],
-  "*.md": ["prettier --write", "git add"],
-  "*.(tsx|ts|jsx|js)": ["eslint --fix", "git add"]
-}
