@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use anyhow::{self, Context, Result};
+use ds_error_context::DsErrContext as Ctx;
 use lazy_static::lazy_static;
 use regex::Regex;
 use semver::{Version, VersionReq};
@@ -56,7 +57,7 @@ impl PackageArg {
         let matches = SPLITTER
             .captures(&s)
             .ok_or_else(|| PackageArgError::ParseError)
-            .with_context(|| format!("Invalid package arg: {}", s))?;
+            .with_context(|| Ctx::DS1005(s.clone()))?;
         let name = matches.name("name").map(|name| name.as_str().to_owned());
         let spec = matches.name("spec").map(|name| name.as_str().to_owned());
         if let Some(name) = name {
@@ -75,12 +76,7 @@ impl PackageArg {
             if IS_FILE.is_match(&spec) {
                 from_dir(name, spec)
             } else if name.is_none() {
-                Err(PackageArgError::ParseError).with_context(|| {
-                    format!(
-                        "Tried to resolve a registry spec ({}) without a name.",
-                        spec
-                    )
-                })?
+                Err(PackageArgError::ParseError).with_context(|| Ctx::DS1006(spec))?
             } else if spec.starts_with("pkg:") {
                 from_alias(name.unwrap(), spec)
             } else {
@@ -89,9 +85,7 @@ impl PackageArg {
         } else if let Some(name) = name {
             from_registry(name, None)
         } else {
-            Err(PackageArgError::ParseError).with_context(|| {
-                format!("Neither a name nor a spec were passed in. Failed to resolve.")
-            })?
+            Err(PackageArgError::ParseError).context(Ctx::DS1007)?
         }
     }
 
@@ -136,7 +130,7 @@ fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
         .captures(&name)
         .or_else(|| LEGACY.captures(&name))
         .ok_or_else(|| PackageArgError::ParseError)
-        .with_context(|| format!("Invalid registry arg string: {}", name))?;
+        .with_context(|| Ctx::DS1008(name.clone()))?;
     let host = caps.name("host").and_then(|host| {
         let mut string = String::from("https://");
         string.push_str(host.as_str());
@@ -148,7 +142,7 @@ fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
         .name("name")
         .map(|x| x.as_str().to_owned())
         .ok_or_else(|| PackageArgError::ParseError)
-        .with_context(|| format!("No package name found in registry arg: {}", name))?;
+        .with_context(|| Ctx::DS1009(name))?;
     if spec.is_none() {
         spec = Some("latest".into());
     }
@@ -178,6 +172,3 @@ fn from_registry(name: String, mut spec: Option<String>) -> Result<PackageArg> {
         host,
     })
 }
-
-#[cfg(test)]
-mod tests {}

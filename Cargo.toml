@@ -14,6 +14,7 @@ cmd-shell = { path = "./commands/cmd-shell" }
 # Workspace Deps
 ds-command = { path = "./packages/ds-command" }
 ds-config = { path = "./packages/ds-config" }
+ds-error-context = { path = "./packages/ds-error-context" }
 
 # Actual Deps
 anyhow = "1.0.24"

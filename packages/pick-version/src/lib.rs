@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use ds_api_types::EntropicPackument;
+use ds_error_context::DsErrContext as Ctx;
 use parse_package_arg::PackageArg;
 use semver::{Version, VersionReq};
 use ssri::Integrity;
@@ -37,12 +38,7 @@ impl Picker {
 
     pub fn pick(&self, packument: &EntropicPackument, wanted: &PackageArg) -> Result<Integrity> {
         if packument.versions.len() == 0 {
-            Err(PickerError::NoVersion).with_context(|| {
-                format!(
-                    "No versions were present in the packument for {}",
-                    packument.name
-                )
-            })?;
+            Err(PickerError::NoVersion).with_context(|| Ctx::DS1012(packument.name.clone()))?;
         }
         match wanted {
             PackageArg::Alias { package, .. } => return self.pick(&packument, &package),
@@ -54,7 +50,7 @@ impl Picker {
             PackageArg::Tag { tag, .. } => packument.tags.get(tag.as_str()).map(|v| v.clone()),
             PackageArg::Range { .. } => None,
             _ => Err(PickerError::InvalidPackageArg)
-                .with_context(|| format!("Received an unexpected PackageArg type: {:?}", wanted))?,
+                .with_context(|| Ctx::DS1013(format!("{:?}", wanted)))?,
         };
 
         let tag_version = packument.tags.get(&self.default_tag).map(|v| v.clone());
@@ -97,12 +93,7 @@ impl Picker {
             .and_then(|v| packument.versions.get(&v))
             .map(|i| i.clone())
             .ok_or_else(|| PickerError::NoVersion)
-            .with_context(|| {
-                format!(
-                    "No versions could be found because {:?} did not match any existing versions",
-                    wanted
-                )
-            })
+            .with_context(|| Ctx::DS1014(format!("{:?}", wanted)))
     }
 }
 

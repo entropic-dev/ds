@@ -7,7 +7,7 @@ fn from_string_bad_arg() {
         .err()
         .unwrap()
         .to_string()
-        .contains("Invalid registry arg string: foo"));
+        .contains("Invalid registry arg string: `foo`"));
 }
 
 #[test]
