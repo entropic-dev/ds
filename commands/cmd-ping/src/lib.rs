@@ -1,9 +1,10 @@
 use std::io::{self, Write};
 use std::time::Instant;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use ds_command::{ArgMatches, Config, DsCommand};
+use ds_error_context::DsErrContext as Ctx;
 use serde::Deserialize;
 use serde_json::Value;
 use structopt::StructOpt;
@@ -21,7 +22,7 @@ pub struct PingCmd {
     json: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct EntropicError {
     message: String,
 }
@@ -31,7 +32,7 @@ impl DsCommand for PingCmd {
     fn layer_config(&mut self, args: ArgMatches<'_>, config: Config) -> Result<()> {
         if args.occurrences_of("registry") == 0 {
             if let Ok(reg) = config.get_str("registry") {
-                self.registry = Url::parse(&reg).context("Failed to parse registry URL.")?;
+                self.registry = Url::parse(&reg).with_context(|| Ctx::DS1010(reg))?;
             }
         }
         Ok(())
@@ -55,17 +56,30 @@ impl PingCmd {
         // https://github.com/dtolnay/anyhow/issues/35#issuecomment-547986739
         let mut res = match surf::get(&self.registry).await {
             Ok(response) => response,
-            Err(err) => bail!(err),
+            Err(err) => {
+                return Err(anyhow!(format!("{:?}", err)))
+                    .with_context(|| Ctx::DS1017(self.registry.to_string()))
+            }
         };
         if res.status().as_u16() >= 400 {
             let msg = match res.body_json::<EntropicError>().await {
                 Ok(err) => err.message,
-                Err(_) => match res.body_string().await {
+                parse_err @ Err(_) => match res.body_string().await {
                     Ok(msg) => msg,
-                    Err(err) => bail!("Failed to get response body: {}", err),
+                    body_err @ Err(_) => {
+                        return Err(anyhow!("{}", Ctx::DS1016))
+                            .with_context(|| format!("{:?}", parse_err))
+                            .with_context(|| format!("{:?}", body_err))
+                    }
                 },
             };
-            return Err(anyhow!("Ping failed for {}: {}", self.registry, msg));
+            return Err(anyhow!(
+                "{}",
+                Ctx::DS1015 {
+                    registry: self.registry.to_string().clone(),
+                    message: msg.clone()
+                }
+            ));
         }
 
         let time = start.elapsed().as_millis() as u64;
@@ -73,7 +87,7 @@ impl PingCmd {
         if self.json {
             let details: Value =
                 serde_json::from_str(&res.body_string().await.unwrap_or("{}".into()))
-                    .context("Failed to parse response body")?;
+                    .context(Ctx::DS1011)?;
             writeln!(
                 stdout,
                 "{}",

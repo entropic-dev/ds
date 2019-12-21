@@ -6,6 +6,7 @@ use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use directories::ProjectDirs;
 use ds_command::{ArgMatches, Config, DsCommand};
+use ds_error_context::DsErrContext as Ctx;
 use ssri::Integrity;
 use structopt::StructOpt;
 
@@ -36,12 +37,8 @@ impl DsCommand for ShellCmd {
     }
 
     async fn execute(self) -> Result<()> {
-        let code = Command::new(self.node)
-            .env(
-                "DS_BIN",
-                env::current_exe()
-                    .context("Failed to get the location of the current ds binary.")?,
-            )
+        let code = Command::new(&self.node)
+            .env("DS_BIN", env::current_exe().context(Ctx::DS1000)?)
             .arg("-r")
             .arg(ensure_dstopic(self.data_dir)?)
             .args(self.args)
@@ -49,7 +46,7 @@ impl DsCommand for ShellCmd {
             .stderr(Stdio::inherit())
             .stdin(Stdio::inherit())
             .status()
-            .context("Failed to execute node binary.")?
+            .context(Ctx::DS1001(self.node))?
             .code()
             .unwrap_or(1);
         if code > 0 {
@@ -64,18 +61,16 @@ fn ensure_dstopic(dir_override: Option<PathBuf>) -> Result<PathBuf> {
         Some(dir) => dir,
         None => ProjectDirs::from("dev", "entropic", "ds")
             .ok_or_else(|| anyhow!("Couldn't find home directory."))
-            .context("A home directory is required for ds patch scripts.")?
+            .context(Ctx::DS1002)?
             .data_dir()
             .to_path_buf(),
     };
-    fs::create_dir_all(&dir)
-        .with_context(|| format!("Failed to create data directory at {:?}", dir))?;
+    fs::create_dir_all(&dir).with_context(|| Ctx::DS1003(dir.clone()))?;
     let data = include_bytes!("../../../dstopic/dist/dstopic.js").to_vec();
     let hash = Integrity::from(&data).to_hex().1;
     let script = dir.join(format!("dstopic-{}", hash.to_string()));
     if !script.exists() {
-        fs::write(&script, &data)
-            .with_context(|| format!("Failed to write dstopic data file at {:?}", script))?;
+        fs::write(&script, &data).with_context(|| Ctx::DS1004(script.clone()))?;
     }
     Ok(script)
 }

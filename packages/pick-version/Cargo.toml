@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 parse-package-arg = { path = "../../packages/parse-package-arg" }
 ds-api-types = { path = "../../packages/ds-api-types" }
+ds-error-context = { path = "../../packages/ds-error-context" }
 
 semver = "0.9.0"
 serde_json = "1.0.42"

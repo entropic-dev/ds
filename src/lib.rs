@@ -11,6 +11,8 @@ use cmd_config::ConfigCmd;
 use cmd_ping::PingCmd;
 use cmd_shell::ShellCmd;
 
+pub use ds_error_context::DsErrContext;
+
 #[derive(Debug, StructOpt)]
 #[structopt(
     author = "Kat Marchán <kzm@zkat.tech>",

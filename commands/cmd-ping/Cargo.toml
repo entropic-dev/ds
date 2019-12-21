@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 ds-command = { path = "../../packages/ds-command" }
+ds-error-context = { path = "../../packages/ds-error-context" }
 
 surf = "1.0.3"
 anyhow = "1.0.25"
