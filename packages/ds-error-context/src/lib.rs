@@ -31,6 +31,7 @@ pub enum DsErrContext {
     #[display(fmt = "DS1004: Failed to write dstopic data file at `{:?}`", _0)]
     DS1004(PathBuf),
 
+    /// Invalid Package Arg.
     #[display(fmt = "DS1005: Invalid package arg: `{}`", _0)]
     DS1005(String),
 
@@ -75,4 +76,9 @@ pub enum DsErrContext {
 
     #[display(fmt = "DS1017: No response from registry at {}", _0)]
     DS1017(String),
+
+    /// Failed to parse a package arg for some reason. The message includes
+    /// the actual error.
+    #[display(fmt = "DS1018: Package arg `{}` failed to parse:\n{}", input, msg)]
+    DS1018 { input: String, msg: String },
 }

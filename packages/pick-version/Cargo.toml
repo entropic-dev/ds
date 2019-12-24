@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-parse-package-arg = { path = "../../packages/parse-package-arg" }
+ds-package-arg = { path = "../../packages/ds-package-arg" }
 ds-api-types = { path = "../../packages/ds-api-types" }
 ds-error-context = { path = "../../packages/ds-error-context" }
 
