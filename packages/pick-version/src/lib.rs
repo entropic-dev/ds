@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use ds_api_types::EntropicPackument;
 use ds_error_context::DsErrContext as Ctx;
-use parse_package_arg::PackageArg;
+use ds_package_arg::PackageArg;
 use semver::{Version, VersionReq};
 use ssri::Integrity;
 use thiserror::Error;
